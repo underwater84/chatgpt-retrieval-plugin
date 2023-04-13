@@ -2,8 +2,8 @@
   "schema_version": "v1",
   "name_for_model": "Roundforest0.1v",
   "name_for_human": "Customer",
-  "description_for_model": "Plugin to help customers shop with easy and security ",
   "description_for_model": "Use this tool to answer user questions about shopping. If the user asks about shopping recommendations or products info use this tool to get the answer. The user can grab more information from the url link in the metadata.",
+  "description_for_human": "Plugin to help customers shop with easy and security ",
   "auth": {
     "type": "user_http",
     "authorization_type": "bearer"
