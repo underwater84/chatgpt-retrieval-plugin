@@ -1,85 +1,196 @@
-openapi: 3.0.1
+openapi: 3.0.2
 info:
-  version: Roundforest0.1v
-  title: Open AI Roundforest product Api
-servers:
-- url: https://seahorse-app-mxwi4.ondigitalocean.app
-tags:
-- name: open-ai-product-endpoint
-  description: Open AI Product Endpoint. Query for products.
+  title: Roundforest0.1v
+  description: Plugin to help customers shop with easy and security
+  version: 1.0.0
+  servers:
+    - url: https://seahorse-app-mxwi4.ondigitalocean.app
 paths:
-   /query:
-    get:
-      tags:
-      - open-ai-product-endpoint
-      summary: API for fetching Roundforest product information
-      operationId: productsUsingGET
-      parameters:
-      - name: q
-        in: query
-        description: A precise query that matches one very small category or product
-          that needs to be searched for to find the products the user is looking for.
-          If the user explicitly stated what they want, use that as a query. The query
-          is as specific as possible to the product name or category mentioned by
-          the user in its singular form, and don't contain any clarifiers like latest,
-          newest, cheapest, budget, premium, expensive or similar. The query is always
-          taken from the latest topic, if there is a new topic a new query is started.
+  /query:
+    post:
+      summary: Query
+      description: Plugin to help customers shop with easy and security
+      operationId: query_query_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryRequest"
         required: true
-        schema:
-          type: string
-      - name: size
-        in: query
-        description: number of products returned
-        required: false
-        schema:
-          type: integer
-      - name: min_price
-        in: query
-        description: "(Optional) Minimum price in local currency for the product searched
-          for. Either explicitly stated by the user or implicitly inferred from a
-          combination of the user's request and the kind of product searched for."
-        required: false
-        schema:
-          type: integer
-      - name: max_price
-        in: query
-        description: "(Optional) Maximum price in local currency for the product searched
-          for. Either explicitly stated by the user or implicitly inferred from a
-          combination of the user's request and the kind of product searched for."
-        required: false
-        schema:
-          type: integer
       responses:
-        '200':
-          description: Products found
+        "200":
+          description: Successful Response
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/ProductResponse"
-        '503':
-          description: one or more services are unavailable
-      deprecated: false
+                $ref: "#/components/schemas/QueryResponse"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+      security:
+        - HTTPBearer: []
 components:
   schemas:
-    Product:
+    DocumentChunkMetadata:
+      title: DocumentChunkMetadata
       type: object
       properties:
-        attributes:
-          type: array
-          items:
-            type: string
-        name:
-          type: string
-        price:
+        source:
+          $ref: "#/components/schemas/Source"
+        source_id:
+          title: Source Id
           type: string
         url:
+          title: Url
           type: string
-      title: Product
-    ProductResponse:
+        created_at:
+          title: Created At
+          type: string
+        author:
+          title: Author
+          type: string
+        document_id:
+          title: Document Id
+          type: string
+    DocumentChunkWithScore:
+      title: DocumentChunkWithScore
+      required:
+        - text
+        - metadata
+        - score
       type: object
       properties:
-        products:
+        id:
+          title: Id
+          type: string
+        text:
+          title: Text
+          type: string
+        metadata:
+          $ref: "#/components/schemas/DocumentChunkMetadata"
+        embedding:
+          title: Embedding
           type: array
           items:
-            "$ref": "#/components/schemas/Product"
-      title: ProductResponse
+            type: number
+        score:
+          title: Score
+          type: number
+    DocumentMetadataFilter:
+      title: DocumentMetadataFilter
+      type: object
+      properties:
+        document_id:
+          title: Document Id
+          type: string
+        source:
+          $ref: "#/components/schemas/Source"
+        source_id:
+          title: Source Id
+          type: string
+        author:
+          title: Author
+          type: string
+        start_date:
+          title: Start Date
+          type: string
+        end_date:
+          title: End Date
+          type: string
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationError"
+    Query:
+      title: Query
+      required:
+        - query
+      type: object
+      properties:
+        query:
+          title: Query
+          type: string
+        filter:
+          $ref: "#/components/schemas/DocumentMetadataFilter"
+        top_k:
+          title: Top K
+          type: integer
+          default: 3
+    QueryRequest:
+      title: QueryRequest
+      required:
+        - queries
+      type: object
+      properties:
+        queries:
+          title: Queries
+          type: array
+          items:
+            $ref: "#/components/schemas/Query"
+    QueryResponse:
+      title: QueryResponse
+      required:
+        - results
+      type: object
+      properties:
+        results:
+          title: Results
+          type: array
+          items:
+            $ref: "#/components/schemas/QueryResult"
+    QueryResult:
+      title: QueryResult
+      required:
+        - query
+        - results
+      type: object
+      properties:
+        query:
+          title: Query
+          type: string
+        results:
+          title: Results
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentChunkWithScore"
+    Source:
+      title: Source
+      enum:
+        - email
+        - file
+        - chat
+      type: string
+      description: An enumeration.
+    ValidationError:
+      title: ValidationError
+      required:
+        - loc
+        - msg
+        - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
