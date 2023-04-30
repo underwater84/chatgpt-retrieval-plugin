@@ -13,9 +13,6 @@
     "url": "https://seahorse-app-mxwi4.ondigitalocean.app/.well-known/openapi.yaml",
     "has_user_authentication": false
   },
-  "auth": {
-    "type": "none"
-  },
   "logo_url": "https://seahorse-app-mxwi4.ondigitalocean.app/.well-known/logo.png",
   "contact_email": "nimrodg@roundforest.com", 
   "legal_info_url": "nimrodg@roundforest.com"
