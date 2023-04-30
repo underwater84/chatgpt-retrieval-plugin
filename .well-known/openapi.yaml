@@ -4,7 +4,7 @@ info:
   description: Plugin to help customers shop with easy and security
   version: 1.0.0
   servers:
-    - url: https://seahorse-app-mxwi4.ondigitalocean.app/
+    - url: https://seahorse-app-mxwi4.ondigitalocean.app
 paths:
   /query:
     post:
